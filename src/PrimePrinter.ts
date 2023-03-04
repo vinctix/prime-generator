@@ -1,6 +1,10 @@
 export class PrimePrinter {
+  static readonly numberOfPrimes = 1000;
+
   static main() {
-    return new PrimePrinterHelper().invoke();
+    const helper = new PrimePrinterHelper();
+    const primes = helper.computePrimeNumbers();
+    return helper.printNumbers(primes, PrimePrinter.numberOfPrimes);
   }
 }
 
@@ -21,12 +25,7 @@ class PrimePrinterHelper {
   private readonly primes = new Array<number>(this.numberOfPrimes + 1);
   private multiples = new Array<number>(this.ordmax + 1);
 
-  invoke() {
-    this.computePrimeNumbers();
-    return this.printNumbers();
-  }
-
-  private computePrimeNumbers() {
+  public computePrimeNumbers(): number[] {
     this.candidate = 1;
     this.primeIndex = 1;
     this.primes[1] = 2;
@@ -54,18 +53,20 @@ class PrimePrinterHelper {
       this.primeIndex++;
       this.primes[this.primeIndex] = this.candidate;
     }
+
+    return this.primes;
   }
 
-  private printNumbers() {
+  printNumbers(numbers: number[], numberOfNumbers: number) {
     let result = "";
 
     this.pageNumber = 1;
     this.pageOffset = 1;
 
-    while (this.pageOffset <= this.numberOfPrimes) {
+    while (this.pageOffset <= numberOfNumbers) {
       result +=
         "The First " +
-        this.numberOfPrimes +
+        numberOfNumbers +
         " Prime Numbers --- Page " +
         this.pageNumber +
         "\n";
@@ -76,12 +77,9 @@ class PrimePrinterHelper {
       ) {
         let lineNumbers: number[] = [];
         for (let column = 0; column <= this.columns - 1; column++) {
-          if (
-            this.rowOffset + column * this.linesPerPage <=
-            this.numberOfPrimes
-          ) {
+          if (this.rowOffset + column * this.linesPerPage <= numberOfNumbers) {
             lineNumbers.push(
-              this.primes[this.rowOffset + column * this.linesPerPage]
+              numbers[this.rowOffset + column * this.linesPerPage]
             );
           }
         }
