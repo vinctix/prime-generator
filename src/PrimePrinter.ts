@@ -5,77 +5,92 @@ export class PrimePrinter {
 }
 
 class PrimePrinterHelper {
+  private numberOfPrimes = 1000;
+  private linesPerPage = 50;
+  private columns = 4;
+  private ordmax = 30;
+  private pageNumber: number;
+  private pageOffset: number;
+  private rowOffset: number;
+  private candidate: number;
+  private primeIndex: number;
+  private possiblyPrime: boolean;
+  private ord: number;
+  private square?: number;
+  private n = 0;
+  private readonly primes = new Array<number>(this.numberOfPrimes + 1);
+  private multiples = new Array<number>(this.ordmax + 1);
+
   invoke() {
-    const M = 1000;
-    const RR = 50;
-    const CC = 4;
-    const ORDMAX = 30;
-    let P = new Array<number>(M + 1);
-    let PAGENUMBER: number;
-    let PAGEOFFSET: number;
-    let ROWOFFSET: number;
-    let C;
-    let J;
-    let K;
-    let JPRIME: boolean;
-    let ORD: number;
-    let SQUARE: number | undefined = undefined;
-    let N = 0;
-    let MULT = new Array<number>(ORDMAX + 1);
+    this.computePrimeNumbers();
+    return this.printNumbers();
+  }
+
+  private computePrimeNumbers() {
+    this.candidate = 1;
+    this.primeIndex = 1;
+    this.primes[1] = 2;
+
+    while (this.primeIndex < this.numberOfPrimes) {
+      do {
+        this.candidate += 2;
+        if (this.candidate === this.square) {
+          this.ord++;
+          this.square = this.primes[this.ord] * this.primes[this.ord];
+          this.multiples[this.ord - 1] = this.candidate;
+        }
+        this.n = 2;
+        this.possiblyPrime = true;
+        while (this.n < this.ord && this.possiblyPrime) {
+          while (this.multiples[this.n] < this.candidate) {
+            this.multiples[this.n] += this.primes[this.n] + this.primes[this.n];
+          }
+          if (this.multiples[this.n] === this.candidate) {
+            this.possiblyPrime = false;
+          }
+          this.n++;
+        }
+      } while (!this.possiblyPrime);
+      this.primeIndex++;
+      this.primes[this.primeIndex] = this.candidate;
+    }
+  }
+
+  private printNumbers() {
     let result = "";
 
-    J = 1;
-    K = 1;
-    P[1] = 2;
-    ORD = 2;
+    this.pageNumber = 1;
+    this.pageOffset = 1;
 
-    while (K < M) {
-      do {
-        J += 2;
-        if (J === SQUARE) {
-          ORD++;
-          SQUARE = P[ORD] * P[ORD];
-          MULT[ORD - 1] = J;
-        }
-        N = 2;
-        JPRIME = true;
-        while (N < ORD && JPRIME) {
-          while (MULT[N] < J) {
-            MULT[N] += P[N] + P[N];
-          }
-          if (MULT[N] === J) {
-            JPRIME = false;
-          }
-          N++;
-        }
-      } while (!JPRIME);
-      K++;
-      P[K] = J;
-    }
-    PAGENUMBER = 1;
-    PAGEOFFSET = 1;
-
-    while (PAGEOFFSET <= M) {
+    while (this.pageOffset <= this.numberOfPrimes) {
       result +=
-        "The First " + M + " Prime Numbers --- Page " + PAGENUMBER + "\n";
+        "The First " +
+        this.numberOfPrimes +
+        " Prime Numbers --- Page " +
+        this.pageNumber +
+        "\n";
       for (
-        ROWOFFSET = PAGEOFFSET;
-        ROWOFFSET <= PAGEOFFSET + RR - 1;
-        ROWOFFSET++
+        this.rowOffset = this.pageOffset;
+        this.rowOffset <= this.pageOffset + this.linesPerPage - 1;
+        this.rowOffset++
       ) {
         let lineNumbers: number[] = [];
-        for (C = 0; C <= CC - 1; C++) {
-          if (ROWOFFSET + C * RR <= M) {
-            lineNumbers.push(P[ROWOFFSET + C * RR]);
+        for (let column = 0; column <= this.columns - 1; column++) {
+          if (
+            this.rowOffset + column * this.linesPerPage <=
+            this.numberOfPrimes
+          ) {
+            lineNumbers.push(
+              this.primes[this.rowOffset + column * this.linesPerPage]
+            );
           }
         }
         result += lineNumbers.join("    ") + "\n";
       }
       result += "\n";
-      PAGENUMBER++;
-      PAGEOFFSET += RR * CC;
+      this.pageNumber++;
+      this.pageOffset += this.linesPerPage * this.columns;
     }
-
     return result;
   }
 }
